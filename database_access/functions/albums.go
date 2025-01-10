@@ -1,13 +1,10 @@
 package albums
 
 import (
-	"database/sql"
 	"fmt"
 
 	_ "github.com/lib/pq" // underscore is required to import the package but not use it directly (only use the init function of the package
 )
-
-var db *sql.DB
 
 type Album struct {
 	ID     int64

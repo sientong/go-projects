@@ -5,4 +5,5 @@ use (
 	./example/hello
 	./greetings_tutorial
 	./hello_world
+	./web-service-gin
 )
