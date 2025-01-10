@@ -1,22 +1,9 @@
 package main
 
 import (
-	"log"
-
-	albums "example/web-service-gin/album-functions"
-
-	"github.com/gin-gonic/gin"
+	routers "example/web-service-gin/routers"
 )
 
 func main() {
-
-	router := gin.Default()
-	router.GET("/albums", func(c *gin.Context) {
-		err := albums.GetAlbums(c)
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	router.Run("localhost:8080")
+	routers.Init()
 }

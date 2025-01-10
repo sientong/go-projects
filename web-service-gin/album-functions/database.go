@@ -15,12 +15,12 @@ func Connect() {
 	conn := "user=postgres dbname=syaif sslmode=disable password=099052"
 	db, err = sql.Open("postgres", conn)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	pingErr := db.Ping()
 	if err != nil {
-		log.Fatal(pingErr)
+		log.Println(pingErr)
 	}
 
 	fmt.Println("Connected to database")
