@@ -10,7 +10,7 @@ import (
 
 var router *gin.Engine
 
-func Init() {
+func Init(address string, port string) {
 
 	router := gin.Default()
 
@@ -30,7 +30,6 @@ func Init() {
 				"Album is successfully created with id": lastInsertId})
 		}
 	})
-
-	router.Run("localhost:8080")
+	router.Run(address + ":" + port)
 
 }
