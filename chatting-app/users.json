@@ -1,0 +1,14 @@
+[
+    {
+        "username": "syaif",
+        "password": "sientong",
+        "email": "sientong@gmail.com",
+        "group": "admin"
+    },
+    {
+        "username": "langit",
+        "password": "biru",
+        "email": "langit@gmail.com",
+        "group": "user"
+    }
+]
