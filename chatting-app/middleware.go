@@ -30,7 +30,7 @@ func (c *CustomMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/login" {
+		if r.URL.Path == "/login" || r.URL.Path == "/chat" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -45,9 +45,9 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if method, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Signing method invalid")
+				return nil, fmt.Errorf("signing method invalid")
 			} else if method != JWT_SIGNING_METHOD {
-				return nil, fmt.Errorf("Signing method invalid")
+				return nil, fmt.Errorf("signing method invalid")
 			}
 
 			return JWT_SIGNATURE_KEY, nil

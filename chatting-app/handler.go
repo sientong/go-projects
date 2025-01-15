@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/novalagung/gubrak/v2"
+	"github.com/gorilla/websocket"
 )
 
 var LOGIN_EXPIRATION_DURATION = time.Duration(1) * time.Hour
@@ -63,30 +63,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(tokenString))
 }
 
-func authenticate(username, password string) (bool, M) {
-	basePath, _ := os.Getwd()
-	dbPath := filepath.Join(basePath, "users.json")
-	buf, _ := os.ReadFile(dbPath)
-
-	data := make([]M, 0)
-	err := json.Unmarshal(buf, &data)
-	if err != nil {
-		return false, nil
-	}
-
-	res := gubrak.From(data).Find(func(each M) bool {
-		return each["username"] == username && each["password"] == password
-	}).Result()
-
-	if res != nil {
-		resM := res.(M)
-		delete(resM, "password")
-		return true, resM
-	}
-
-	return false, nil
-}
-
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -95,4 +71,27 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	w.Write([]byte("Welcome " + userInfo["username"].(string)))
+}
+
+func ChatHandler(w http.ResponseWriter, r *http.Request) {
+	content, err := os.ReadFile("chat.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "%s", content)
+}
+
+func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
+	currentGorillaConn, err := websocket.Upgrade(w, r, w.Header(), 1024, 1024)
+	if err != nil {
+		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
+	}
+
+	username := r.URL.Query().Get("username")
+	currentConn := WebSocketConnection{Conn: currentGorillaConn, Username: username}
+	connections := append(connections, &currentConn)
+
+	go handleIO(&currentConn, connections)
 }
