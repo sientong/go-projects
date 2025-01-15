@@ -1,8 +1,10 @@
 go 1.23.4
 
 use (
+	./chatting-app
 	./database_access
 	./example/hello
+	./go-routine
 	./greetings_tutorial
 	./hello_world
 	./web-service-gin

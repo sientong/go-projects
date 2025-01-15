@@ -1,7 +1,7 @@
 package main
 
 import (
-	routers "example/web-service-gin/routers"
+	"example/web-service-gin/routers"
 	"os"
 )
 
