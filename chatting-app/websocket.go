@@ -15,8 +15,6 @@ const MESSAGE_NEW_USER = "New User"
 const MESSAGE_CHAT = "Chat"
 const MESSAGE_LEAVE = "Leave"
 
-var connections = make([]*WebSocketConnection, 0)
-
 type SocketPayload struct {
 	Message string
 }
@@ -54,6 +52,7 @@ func handleIO(currentCon *WebSocketConnection, connections []*WebSocketConnectio
 			log.Println("Error:", err)
 			continue
 		}
+		log.Println("Payload:", payload)
 
 		broadcastMessage(currentCon, MESSAGE_CHAT, payload.Message)
 	}
@@ -67,7 +66,10 @@ func ejectConnection(currentConn *WebSocketConnection) {
 }
 
 func broadcastMessage(currentConn *WebSocketConnection, kind, message string) {
+	log.Println("Broadcasting message:", message, " to ", len(connections), " connections")
+
 	for _, eachConn := range connections {
+		log.Println("Broadcasting to:", eachConn.Username)
 		if eachConn == currentConn {
 			continue
 		}

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -15,6 +16,7 @@ var LOGIN_EXPIRATION_DURATION = time.Duration(1) * time.Hour
 var JWT_SIGNATURE_KEY = []byte("secret")
 var JWT_SIGNING_METHOD = jwt.SigningMethodHS256
 var JWT_ISSUER = "chatting-app"
+var connections = make([]*WebSocketConnection, 0)
 
 type CustomClaim struct {
 	jwt.StandardClaims
@@ -80,18 +82,24 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("Chat page served")
 	fmt.Fprintf(w, "%s", content)
 }
 
-func WebsocketHandler(w http.ResponseWriter, r *http.Request) {
+func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
+
 	currentGorillaConn, err := websocket.Upgrade(w, r, w.Header(), 1024, 1024)
 	if err != nil {
 		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
 	}
 
 	username := r.URL.Query().Get("username")
+	log.Println("New client connected:", username)
+
 	currentConn := WebSocketConnection{Conn: currentGorillaConn, Username: username}
-	connections := append(connections, &currentConn)
+	connections = append(connections, &currentConn)
+
+	log.Println("Total connection:", len(connections))
 
 	go handleIO(&currentConn, connections)
 }

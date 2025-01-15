@@ -30,7 +30,7 @@ func (c *CustomMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/login" || r.URL.Path == "/chat" {
+		if r.URL.Path == "/login" || r.URL.Path == "/chat" || r.URL.Path == "/ws" {
 			next.ServeHTTP(w, r)
 			return
 		}
