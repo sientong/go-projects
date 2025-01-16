@@ -3,21 +3,26 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"websocket/chatting-app/handlers"
+	"websocket/chatting-app/utils"
 )
 
 func main() {
-	mux := new(CustomMux)
-	mux.RegisterMiddleware(JWTAuthMiddleware)
+	mux := new(utils.CustomMux)
+	mux.RegisterMiddleware(utils.JWTAuthMiddleware)
 
-	mux.HandleFunc("/login", LoginHandler)
-	mux.HandleFunc("/index", IndexHandler)
-	mux.HandleFunc("/chat", ChatHandler)
-	mux.HandleFunc("/ws", WebSocketHandler)
+	mux.HandleFunc("/login", handlers.LoginHandler)
+	mux.HandleFunc("/index", handlers.IndexHandler)
+	mux.HandleFunc("/chat", handlers.ChatHandler)
+	mux.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	server := new(http.Server)
 	server.Handler = mux
-	server.Addr = ":8080"
+	server.Addr = utils.SERVER_HOST + ":" + utils.SERVER_PORT
 
 	fmt.Println("Listening on", server.Addr)
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
