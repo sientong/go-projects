@@ -8,6 +8,11 @@ import (
 )
 
 func main() {
+	runMigrations()
+
+	utils.Connect()
+	defer utils.Close()
+
 	mux := new(utils.CustomMux)
 	mux.RegisterMiddleware(utils.JWTAuthMiddleware)
 

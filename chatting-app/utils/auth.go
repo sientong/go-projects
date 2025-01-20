@@ -1,13 +1,12 @@
 package utils
 
 import (
+	"database/sql"
 	"encoding/json"
-	"os"
-	"path/filepath"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/novalagung/gubrak/v2"
 )
 
 type M map[string]interface{}
@@ -21,51 +20,58 @@ type CustomClaim struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	Group    string `json:"group"`
+	Role     string `json:"role"`
 }
 
-func Authenticate(requestData RequestData) (bool, M) {
-	basePath, _ := os.Getwd()
-	dbPath := filepath.Join(basePath, "users.json")
-	buf, _ := os.ReadFile(dbPath)
+type User struct {
+	Id          int64
+	Username    string
+	Password    string
+	Email       string
+	FullName    string
+	PhoneNumber string
+	IsActive    bool
+	Role        string
+	CreatedAt   string
+	UpdatedAt   string
+}
 
-	data := make([]M, 0)
-	err := json.Unmarshal(buf, &data)
+func Authenticate(requestData RequestData) (User, bool) {
+
+	var authorizedUser User
+	query := "SELECT * FROM users WHERE username = $1 and password = $2"
+	err := db.QueryRow(query, requestData.Username, requestData.Password).Scan(&authorizedUser.Id, &authorizedUser.Username, &authorizedUser.Password, &authorizedUser.Email, &authorizedUser.FullName, &authorizedUser.PhoneNumber, &authorizedUser.IsActive, &authorizedUser.Role, &authorizedUser.CreatedAt, &authorizedUser.UpdatedAt)
 	if err != nil {
-		return false, nil
+		if err == sql.ErrNoRows {
+			log.Println("Invalid username or password")
+		} else {
+			log.Printf("Failed to query %s", query)
+			log.Printf("%s", err)
+		}
+		return authorizedUser, false
 	}
 
-	res := gubrak.From(data).Find(func(each M) bool {
-		return each["username"] == requestData.Username && each["password"] == requestData.Password
-	}).Result()
-
-	if res != nil {
-		resM := res.(M)
-		delete(resM, "password")
-		return true, resM
-	}
-
-	return false, nil
+	return authorizedUser, true
 }
 
-func GenerateToken(userInfo M) (error, []byte) {
+func GenerateToken(authorizedUser User) ([]byte, error) {
 	claims := CustomClaim{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    JWT_ISSUER,
 			ExpiresAt: time.Now().Add(LOGIN_EXPIRATION_DURATION).Unix(),
 		},
-		Username: userInfo["username"].(string),
-		Email:    userInfo["email"].(string),
-		Group:    userInfo["group"].(string),
+		Username: authorizedUser.Username,
+		Email:    authorizedUser.Email,
+		Role:     authorizedUser.Role,
 	}
 
 	token := jwt.NewWithClaims(JWT_SIGNING_METHOD, claims)
 
 	signedToken, err := token.SignedString(JWT_SIGNATURE_KEY)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	tokenString, _ := json.Marshal(M{"token": signedToken})
-	return nil, tokenString
+	return tokenString, nil
 }
