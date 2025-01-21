@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ChannelsList from "./ChannelsList";
 import MessagesPanel from "./MessagesPanel";
 
-const MainChat = () => {
+const MainChannel = () => {
 	const { channelId } = useParams();
 	const navigate = useNavigate();
 	const [selectedChannel, setSelectedChannel] = useState(
@@ -13,7 +13,7 @@ const MainChat = () => {
 	// If the component loads with a channel ID in the URL, set it as the selected channel.
 	useEffect(() => {
 		if (selectedChannel) {
-			navigate(`/chat/${selectedChannel.id}`);
+			navigate(`/channels/${selectedChannel.id}`);
 		}
 	}, [selectedChannel, navigate]);
 
@@ -36,4 +36,4 @@ const MainChat = () => {
 	);
 };
 
-export default MainChat;
+export default MainChannel;

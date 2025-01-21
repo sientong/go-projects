@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Login from "./Login";
-import MainChat from "./MainChat";
+import Login from "./services/Login";
+import MainChannel from "./services/MainChannel";
 
 const App = () => {
 	return (
 		<Router>
 			<Routes>
-				<Route path="/chat" element={<MainChat />} />
-				<Route path="/chat/:channelId" element={<MainChat />} />
+				<Route path="/channels" element={<MainChannel />} />
+				<Route path="/channels/:channelId" element={<MainChannel />} />
 				<Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
 			</Routes>

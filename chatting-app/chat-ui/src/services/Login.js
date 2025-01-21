@@ -14,13 +14,12 @@ const Login = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
-            console.log(username)
 
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', username);
-                navigate('/chat');
+                navigate('/channels');
             } else {
                 console.error('Login failed');
             }

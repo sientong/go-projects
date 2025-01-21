@@ -20,6 +20,7 @@ func main() {
 	mux.HandleFunc("/index", handlers.IndexHandler)
 	mux.HandleFunc("/chat", handlers.ChatHandler)
 	mux.HandleFunc("/ws", handlers.WebSocketHandler)
+	mux.HandleFunc("/channel/", handlers.ChannelHandler)
 
 	server := new(http.Server)
 	server.Handler = mux

@@ -28,7 +28,11 @@ func Connect() {
 	fmt.Println("Connected to database")
 }
 
+func GetDatabaseConnection() *sql.DB {
+	return db
+}
+
 func Close() {
-	defer db.Close()
+	db.Close()
 	fmt.Println("Database connection closed")
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"websocket/chatting-app/utils"
@@ -14,33 +13,20 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read the body
-	body, err := ioutil.ReadAll(r.Body)
+	// Read the body and assign the data
+	var data utils.RequestData
+	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
 
-	// Parse JSON
-	var data utils.RequestData
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
-		return
-	}
-
 	log.Println("username " + data.Username + " password " + data.Password)
 
-	authorizedUser, status := utils.Authenticate(data)
-	if !status {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	tokenString, err := utils.GenerateToken(authorizedUser)
+	tokenString, err := utils.Authenticate(data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 

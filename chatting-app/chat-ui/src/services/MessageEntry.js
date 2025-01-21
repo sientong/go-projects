@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { fetchWithToken } from "./api";
 
 const MessageEntry = ({ selectedChannel, onNewMessage }) => {
 	const [text, setText] = useState("");
@@ -7,7 +8,7 @@ const MessageEntry = ({ selectedChannel, onNewMessage }) => {
 		const userID = localStorage.getItem("userId");
 		const userName = localStorage.getItem("userName");
 
-		const response = await fetch("/messages", {
+		const response = await fetchWithToken("/messages", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({

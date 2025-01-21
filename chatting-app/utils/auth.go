@@ -36,7 +36,7 @@ type User struct {
 	UpdatedAt   string
 }
 
-func Authenticate(requestData RequestData) (User, bool) {
+func Authenticate(requestData RequestData) ([]byte, error) {
 
 	var authorizedUser User
 	query := "SELECT * FROM users WHERE username = $1 and password = $2"
@@ -48,10 +48,15 @@ func Authenticate(requestData RequestData) (User, bool) {
 			log.Printf("Failed to query %s", query)
 			log.Printf("%s", err)
 		}
-		return authorizedUser, false
+		return nil, err
 	}
 
-	return authorizedUser, true
+	tokenString, err := GenerateToken(authorizedUser)
+	if err != nil {
+		log.Printf("Error on generating token: %s", err)
+	}
+
+	return tokenString, err
 }
 
 func GenerateToken(authorizedUser User) ([]byte, error) {

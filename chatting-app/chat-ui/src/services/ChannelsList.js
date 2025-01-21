@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { fetchWithToken } from "./api";
 
 const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
+
 	const { channelId } = useParams();
 	const [channels, setChannels] = useState([]);
 	const [newChannelName, setNewChannelName] = useState("");
@@ -19,19 +21,21 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 
 	useEffect(() => {
 		const fetchChannels = async () => {
-			const response = await fetch("/channels");
+			const response = await fetchWithToken("/channel/");
 			const data = await response.json();
+			console.log(data)
 			setChannels(data || []);
 		};
 		fetchChannels();
 	}, []);
 
 	const handleAddChannel = async () => {
-		const response = await fetch("/channels", {
+		const response = await fetchWithToken("/channel/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ name: newChannelName }),
 		});
+		console.log(response)
 
 		if (response.ok) {
 			const newChannel = await response.json();
@@ -48,15 +52,15 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 					<ul className="w-full">
 						{channels.map((channel) => (
 							<li
-								key={channel.id}
+								key={channel.ID}
 								className={`p-2 rounded-md w-full cursor-pointer ${
-									parseInt(channelId) === channel.id
+									parseInt(channelId) === channel.ID
 										? "bg-blue-500 text-white"
 										: "hover:bg-gray-200"
 								}`}
 								onClick={() => setSelectedChannel(channel)}
 							>
-								{channel.name}
+								{channel.ChannelName}
 							</li>
 						))}
 					</ul>
