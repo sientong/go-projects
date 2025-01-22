@@ -13,7 +13,7 @@ const MainChannel = () => {
 	// If the component loads with a channel ID in the URL, set it as the selected channel.
 	useEffect(() => {
 		if (selectedChannel) {
-			navigate(`/channels/${selectedChannel.id}`);
+			navigate(`/channels/${selectedChannel.ID}`);
 		}
 	}, [selectedChannel, navigate]);
 

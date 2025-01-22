@@ -7,14 +7,17 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 	const { channelId } = useParams();
 	const [channels, setChannels] = useState([]);
 	const [newChannelName, setNewChannelName] = useState("");
+	const [menuPosition, setMenuPosition] = useState(null);
+	const [selectedChannelForAction, setSelectedChannelForAction] = useState(null);
 
 	useEffect(() => {
 		if (channelId) {
+			console.log(channelId)
 			const channel = channels.find(
-				(channel) => channel.id === parseInt(channelId),
+				(channel) => channel.ID === parseInt(channelId),
 			);
 			if (channel) {
-				setSelectedChannel({ name: channel.name, id: parseInt(channelId) });
+				setSelectedChannel({ ChannelName: channel.ChannelName, ID: parseInt(channelId) });
 			}
 		}
 	}, [channelId, channels]);
@@ -22,9 +25,17 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 	useEffect(() => {
 		const fetchChannels = async () => {
 			const response = await fetchWithToken("/channel/");
-			const data = await response.json();
-			console.log(data)
-			setChannels(data || []);
+			if (!response) {
+				console.error("Failed to fetch channels due to unauthorized or network error.");
+				return; // Exit early if response is null
+			  }
+		  
+			  try {
+				const data = await response.json();
+				setChannels(data || []);
+			  } catch (error) {
+				console.error("Error parsing JSON:", error);
+			  }
 		};
 		fetchChannels();
 	}, []);
@@ -33,16 +44,63 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 		const response = await fetchWithToken("/channel/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ name: newChannelName }),
+			body: JSON.stringify({ channelName: newChannelName }),
 		});
 		console.log(response)
 
 		if (response.ok) {
 			const newChannel = await response.json();
-			setChannels([...channels, { id: newChannel.id, name: newChannelName }]);
+			setChannels([...channels, { ID: newChannel.ID, ChannelName: newChannelName }]);
 			setNewChannelName("");
 		}
 	};
+
+	const handleUpdateChannel = async () => {
+		const newName = prompt("Enter new channel name", selectedChannelForAction.ChannelName);
+		if (newName) {
+		  	const response = await fetchWithToken(`/channel/${selectedChannelForAction.ID}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ channelName: newName }),
+			});
+	
+			if (response.ok) {
+				setChannels((prevChannels) =>
+				prevChannels.map((channel) =>
+					channel.ID === selectedChannelForAction.ID
+					? { ...channel, ChannelName: newName }
+					: channel
+				)
+				);
+				setMenuPosition(null);
+			}
+		}
+	};
+	
+	const handleDeleteChannel = async () => {
+		if (window.confirm("Are you sure you want to delete this channel?")) {
+			const response = await fetchWithToken(`/channel/${selectedChannelForAction.ID}`, {
+				method: "DELETE",
+			});
+		
+			if (response.ok) {
+				setChannels((prevChannels) =>
+				prevChannels.filter((channel) => channel.ID !== selectedChannelForAction.ID)
+				);
+				setMenuPosition(null);
+			}
+		}
+	};
+
+	const handleContextMenu = (event, channel) => {
+		event.preventDefault();
+		setSelectedChannelForAction(channel);
+		setMenuPosition({ x: event.clientX, y: event.clientY })
+	}
+
+	const handleCloseMenu = () => {
+		setMenuPosition(null)
+	}
 
 	return (
 		<div className="flex flex-col h-full bg-gray-100 border-r">
@@ -53,12 +111,11 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 						{channels.map((channel) => (
 							<li
 								key={channel.ID}
-								className={`p-2 rounded-md w-full cursor-pointer ${
-									parseInt(channelId) === channel.ID
-										? "bg-blue-500 text-white"
-										: "hover:bg-gray-200"
-								}`}
 								onClick={() => setSelectedChannel(channel)}
+								onContextMenu={(event) => handleContextMenu(event, channel)}
+								className={`p-2 rounded-md w-full cursor-pointer ${
+									parseInt(channelId) === channel.ID ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+								}`}
 							>
 								{channel.ChannelName}
 							</li>

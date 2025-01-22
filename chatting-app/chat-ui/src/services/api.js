@@ -1,6 +1,9 @@
-export const fetchWithToken = async (url, options = {}) => {
+import { getNavigate } from "./navigation";
+
+export const fetchWithToken = async (url, options = {}, navigate) => {
 
     try {
+
       // Get token from storage (adjust based on your app's storage logic)
       const token = localStorage.getItem("token");
   
@@ -15,6 +18,12 @@ export const fetchWithToken = async (url, options = {}) => {
       const response = await fetch(url, { ...options, headers });
   
       console.log(response);
+
+      if (response.status == 401 || response.status == 403) {
+        const navigate = getNavigate();
+        navigate('/');
+        return null;
+      }
 
       // Check if response is ok (status 200-299)
       if (!response.ok) {

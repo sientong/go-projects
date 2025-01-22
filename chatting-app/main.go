@@ -16,7 +16,7 @@ func main() {
 	mux := new(utils.CustomMux)
 	mux.RegisterMiddleware(utils.JWTAuthMiddleware)
 
-	mux.HandleFunc("/login", handlers.LoginHandler)
+	mux.HandleFunc("/login/", handlers.LoginHandler)
 	mux.HandleFunc("/index", handlers.IndexHandler)
 	mux.HandleFunc("/chat", handlers.ChatHandler)
 	mux.HandleFunc("/ws", handlers.WebSocketHandler)
