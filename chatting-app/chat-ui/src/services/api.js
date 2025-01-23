@@ -19,7 +19,7 @@ export const fetchWithToken = async (url, options = {}, navigate) => {
   
       console.log(response);
 
-      if (response.status == 401 || response.status == 403) {
+      if (response.status === 401 || response.status === 403) {
         const navigate = getNavigate();
         navigate('/');
         return null;
