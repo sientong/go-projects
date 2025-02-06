@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log"
 	"time"
 
@@ -36,7 +35,7 @@ type User struct {
 	UpdatedAt   string
 }
 
-func Authenticate(requestData RequestData) ([]byte, error) {
+func Authenticate(requestData RequestData) (string, error) {
 
 	var authorizedUser User
 	query := "SELECT * FROM users WHERE username = $1 and password = $2"
@@ -48,7 +47,7 @@ func Authenticate(requestData RequestData) ([]byte, error) {
 			log.Printf("Failed to query %s", query)
 			log.Printf("%s", err)
 		}
-		return nil, err
+		return "", err
 	}
 
 	tokenString, err := GenerateToken(authorizedUser)
@@ -59,7 +58,7 @@ func Authenticate(requestData RequestData) ([]byte, error) {
 	return tokenString, err
 }
 
-func GenerateToken(authorizedUser User) ([]byte, error) {
+func GenerateToken(authorizedUser User) (string, error) {
 	claims := CustomClaim{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    JWT_ISSUER,
@@ -74,9 +73,8 @@ func GenerateToken(authorizedUser User) ([]byte, error) {
 
 	signedToken, err := token.SignedString(JWT_SIGNATURE_KEY)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	tokenString, _ := json.Marshal(M{"token": signedToken})
-	return tokenString, nil
+	return signedToken, nil
 }

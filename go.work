@@ -7,5 +7,7 @@ use (
 	./go-routine
 	./greetings_tutorial
 	./hello_world
+	./resumable-upload
+	./upload-client
 	./web-service-gin
 )
