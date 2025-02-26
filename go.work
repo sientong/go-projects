@@ -2,12 +2,14 @@ go 1.23.4
 
 use (
 	./chatting-app
-	./database_access
+	./database-access
 	./example/hello
 	./go-routine
-	./greetings_tutorial
-	./hello_world
+	./greetings-tutorial
+	./hello-world
 	./resumable-upload
 	./upload-client
+	./url-shortener
 	./web-service-gin
+	./webcrawler
 )
